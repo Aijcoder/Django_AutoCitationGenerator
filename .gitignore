@@ -1,0 +1,22 @@
+# Ignore virtual environment folder
+.venv/
+
+# Ignore environment variable file
+.env
+
+# Ignore Python bytecode cache
+__pycache__/
+
+# Ignore VSCode configuration folder
+.vscode/
+
+log/
+
+citation.json
+input.json
+
+chromedriver
+
+/failed
+_websites_.json
+search_queries.txt
