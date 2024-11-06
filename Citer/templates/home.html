@@ -43,6 +43,40 @@
             outline: none; /* Removes default focus outline */
             font-size: 1rem; /* Add font size for better readability */
         }
+        /* File upload button styling */
+        /* File upload container to hold both the upload button and the cross button */
+        .file-upload-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        /* File upload button styling */
+        .file-upload {
+            color: #f0f8ff;
+            background-color: #333;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            margin-right: 10px; /* Space between the upload button and the cross button */
+        }
+
+        /* Cross button styling */
+        .remove-file-btn {
+            background: none;
+            border: none;
+            color: #ff4c4c;
+            font-size: 20px;
+            cursor: pointer;
+            display: none; /* Hide by default */
+        }
+
+        /* Hide file upload when there's content */
+        .editor-area:not(:empty) ~ .file-upload-container .file-upload {
+            display: none;
+        }
 
         /* Placeholder styling */
         .placeholder {
@@ -125,7 +159,14 @@
     <div class="text-container">
         <div class="editor-area" contenteditable="true" spellcheck="false" oninput="togglePlaceholder()"></div>
         <div class="placeholder">Start by writing, pasting (⌘ + V) text, or uploading a document (doc, pdf).</div>
+        
+        <!-- File upload section -->
+        <div class="file-upload-container">
+            <input type="file" id="fileUpload" class="file-upload" accept=".doc, .pdf, .txt" onchange="handleFileUpload(event)" />
+            <button class="remove-file-btn" onclick="removeFile()" style="display:none;">&times;</button> <!-- Cross button to remove file -->
+        </div>
     </div>
+    
     <div class="control-panel">
         <h2>Control Panel</h2>
         <div class="progress-bar-container">
@@ -135,10 +176,54 @@
     </div>
     <script>
         function togglePlaceholder() {
-            const editor = document.querySelector('.editor-area');
-            const placeholder = document.querySelector('.placeholder');
-            placeholder.style.display = editor.innerText.trim() ? 'none' : 'block'; // Show placeholder if empty
+    const editor = document.querySelector('.editor-area');
+    const placeholder = document.querySelector('.placeholder');
+    const fileUpload = document.querySelector('#fileUpload');
+    const removeFileBtn = document.querySelector('.remove-file-btn');
+    
+    const isEmpty = editor.innerText.trim() === '';
+    placeholder.style.display = isEmpty ? 'block' : 'none'; // Show placeholder if empty
+    fileUpload.style.display = isEmpty ? 'block' : 'none';   // Show file upload if empty
+    removeFileBtn.style.display = editor.innerText.trim() ? 'block' : 'none'; // Show remove button when file is uploaded
+}
+
+// Handle file upload and insert content into editor area
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    const editor = document.querySelector('.editor-area');
+
+    if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // If the file is text (txt, doc, or simple PDF converted to text)
+            editor.innerText = e.target.result; // Display file content in editor
+            togglePlaceholder(); // Hide placeholder and upload button after content is added
+        };
+
+        if (file.type.match('text.*')) {
+            reader.readAsText(file); // Reads the text file (txt, .doc, etc.)
+        } else {
+            // For non-text files (like PDF or DOC), we do not display the binary content
+            editor.innerText = ''; // Clear the editor content
+            togglePlaceholder(); // Hide placeholder and file upload button
         }
+    }
+}
+
+// Remove the uploaded file and reset the editor area
+function removeFile() {
+    const editor = document.querySelector('.editor-area');
+    const fileUpload = document.querySelector('#fileUpload');
+    const removeFileBtn = document.querySelector('.remove-file-btn');
+    
+    fileUpload.value = ''; // Clear file input
+    editor.innerText = ''; // Clear editor content
+    togglePlaceholder(); // Show placeholder again
+    removeFileBtn.style.display = 'none'; // Hide the cross button
+}
+
+
 
     
         function startProcessing() {
@@ -178,7 +263,7 @@
             // Start the first step
             updateProgress(0);
         }
-    
+        
         function createFirework() {
             const firework = document.createElement('div');
             firework.classList.add('firework');
