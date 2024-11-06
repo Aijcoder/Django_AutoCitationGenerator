@@ -176,56 +176,53 @@
     </div>
     <script>
         function togglePlaceholder() {
-    const editor = document.querySelector('.editor-area');
-    const placeholder = document.querySelector('.placeholder');
-    const fileUpload = document.querySelector('#fileUpload');
-    const removeFileBtn = document.querySelector('.remove-file-btn');
-    
-    const isEmpty = editor.innerText.trim() === '';
-    placeholder.style.display = isEmpty ? 'block' : 'none'; // Show placeholder if empty
-    fileUpload.style.display = isEmpty ? 'block' : 'none';   // Show file upload if empty
-    removeFileBtn.style.display = editor.innerText.trim() ? 'block' : 'none'; // Show remove button when file is uploaded
-}
-
-// Handle file upload and insert content into editor area
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    const editor = document.querySelector('.editor-area');
-
-    if (file) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // If the file is text (txt, doc, or simple PDF converted to text)
-            editor.innerText = e.target.result; // Display file content in editor
-            togglePlaceholder(); // Hide placeholder and upload button after content is added
-        };
-
-        if (file.type.match('text.*')) {
-            reader.readAsText(file); // Reads the text file (txt, .doc, etc.)
-        } else {
-            // For non-text files (like PDF or DOC), we do not display the binary content
-            editor.innerText = ''; // Clear the editor content
-            togglePlaceholder(); // Hide placeholder and file upload button
+            const editor = document.querySelector('.editor-area');
+            const placeholder = document.querySelector('.placeholder');
+            const fileUpload = document.querySelector('#fileUpload');
+            const removeFileBtn = document.querySelector('.remove-file-btn');
+            
+            const isEmpty = editor.innerText.trim() === '';
+            placeholder.style.display = isEmpty ? 'block' : 'none'; // Show placeholder if empty
+            fileUpload.style.display = isEmpty ? 'block' : 'none';   // Show file upload if empty
+            removeFileBtn.style.display = editor.innerText.trim() ? 'block' : 'none'; // Show remove button when file is uploaded
         }
-    }
-}
 
-// Remove the uploaded file and reset the editor area
-function removeFile() {
-    const editor = document.querySelector('.editor-area');
-    const fileUpload = document.querySelector('#fileUpload');
-    const removeFileBtn = document.querySelector('.remove-file-btn');
-    
-    fileUpload.value = ''; // Clear file input
-    editor.innerText = ''; // Clear editor content
-    togglePlaceholder(); // Show placeholder again
-    removeFileBtn.style.display = 'none'; // Hide the cross button
-}
+        // Handle file upload and insert content into editor area
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const editor = document.querySelector('.editor-area');
 
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // If the file is text (txt, doc, or simple PDF converted to text)
+                    editor.innerText = e.target.result; // Display file content in editor
+                    togglePlaceholder(); // Hide placeholder and upload button after content is added
+                };
 
+                if (file.type.match('text.*')) {
+                    reader.readAsText(file); // Reads the text file (txt, .doc, etc.)
+                } else {
+                    // For non-text files (like PDF or DOC), we do not display the binary content
+                    editor.innerText = ''; // Clear the editor content
+                    togglePlaceholder(); // Hide placeholder and file upload button
+                }
+            }
+        }
 
-    
+        // Remove the uploaded file and reset the editor area
+        function removeFile() {
+            const editor = document.querySelector('.editor-area');
+            const fileUpload = document.querySelector('#fileUpload');
+            const removeFileBtn = document.querySelector('.remove-file-btn');
+            
+            fileUpload.value = ''; // Clear file input
+            editor.innerText = ''; // Clear editor content
+            togglePlaceholder(); // Show placeholder again
+            removeFileBtn.style.display = 'none'; // Hide the cross button
+        }
+
         function startProcessing() {
             const progressBar = document.getElementById('progressBar');
             const steps = [
