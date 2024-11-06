@@ -4,18 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoCitation Program</title>
-    <link rel="stylesheet" href="./Citer/templates/style.css">
+    <style>
+        /* Base page styling */
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, rgba(84, 145, 84, 0.911) 0%, rgba(5, 38, 5, 0.8) 100%);
+            color: #f0f8ff;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+        }
+    
+        .text-container {
+            flex: 1;
+            padding: 20px;
+            background-color: rgba(34, 34, 34, 0.9);
+            border: 2px solid #005b5b;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-area {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            background-color: transparent;
+            color: #f0f8ff;
+            overflow-y: auto;
+            min-height: 200px;
+            caret-color: #f0f8ff; /* Sets caret color */
+            outline: none; /* Removes default focus outline */
+            font-size: 1rem; /* Add font size for better readability */
+        }
+
+        /* Placeholder styling */
+        .placeholder {
+            color: #bbb; /* Placeholder text color */
+            position: absolute;
+            pointer-events: none;
+            left: 20px;
+            top: 20px;
+            transition: 0.2s;
+        }
+
+        /* Hide placeholder if there's content */
+        .editor-area:focus + .placeholder,
+        .editor-area:not(:empty) + .placeholder {
+            display: none;
+        }
+
+    
+        .control-panel {
+            width: 300px;
+            padding: 20px;
+            background: rgba(34, 34, 34, 0.9);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            margin-left: 20px;
+        }
+    
+        /* Enchanted Progress Bar */
+        .progress-bar-container {
+            background: #555;
+            border-radius: 5px;
+            height: 20px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+    
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(45deg, #ff5733, #33ff57, #3357ff, #ff33a6);
+            background-size: 400% 400%;
+            animation: colorShift 5s infinite ease-in-out; /* Animated color gradient */
+            transition: width 0.4s ease;
+        }
+    
+        /* Fireworks Styling */
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff5733, transparent);
+            animation: explode 1s forwards, colorShiftFirework 1s infinite; /* Combine explode and color shift */
+        }
+
+        /* Explosion animation for movement */
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+
+        /* Color shift for fireworks */
+        @keyframes colorShiftFirework {
+            0% { background: radial-gradient(circle, #ff5733, transparent); }
+            25% { background: radial-gradient(circle, #33ff57, transparent); }
+            50% { background: radial-gradient(circle, #3357ff, transparent); }
+            75% { background: radial-gradient(circle, #ff33a6, transparent); }
+            100% { background: radial-gradient(circle, #ff5733, transparent); }
+        }
+    </style>
+    
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">AutoCitation</h1>
-        <p class="description">A program made for making things easier.</p>
-        <button class="start-btn" onclick="startProcess()">Run All</button>
-
-        <div class="progress-circle" id="progress-circle">
-            <div class="progress-text" id="progress-text">Start</div>
-        </div>
+    <div class="text-container">
+        <div class="editor-area" contenteditable="true" spellcheck="false" oninput="togglePlaceholder()"></div>
+        <div class="placeholder">Start by writing, pasting (⌘ + V) text, or uploading a document (doc, pdf).</div>
     </div>
-    <script src="Citer/templates/script.js"></script>
+    <div class="control-panel">
+        <h2>Control Panel</h2>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <button class="button" onclick="startProcessing()">Start</button>
+    </div>
+    <script>
+        function togglePlaceholder() {
+            const editor = document.querySelector('.editor-area');
+            const placeholder = document.querySelector('.placeholder');
+            placeholder.style.display = editor.innerText.trim() ? 'none' : 'block'; // Show placeholder if empty
+        }
+
+    
+        function startProcessing() {
+            const progressBar = document.getElementById('progressBar');
+            const steps = [
+                { increment: 15, delay: 1000 },  // Step 1 - 15%
+                { increment: 15, delay: 1000 },  // Step 2 - 15%
+                { increment: 10, delay: 800 },   // Step 3 - 10%
+                { increment: 10, delay: 800 },   // Step 4 - 10%
+                { increment: 25, delay: 1200 },  // Step 5 - 25%
+                { increment: 25, delay: 1200 }   // Step 6 - 25%
+            ];
+    
+            let progress = 0;
+    
+            function updateProgress(stepIndex) {
+                if (stepIndex < steps.length) {
+                    // Update progress and progress bar width
+                    progress += steps[stepIndex].increment;
+                    progressBar.style.width = progress + '%';
+                    for (let i = 0; i < 30; i++) {
+                        createFirework();
+                    }
+                    // Move to the next step after the specified delay
+                    setTimeout(() => {
+                        updateProgress(stepIndex + 1);
+                    }, steps[stepIndex].delay);
+                } else {
+                    // All steps complete, trigger fireworks effect
+                    for (let i = 0; i < 50; i++) {
+                        createFirework();
+                    }
+                    console.log("Processing Complete");
+                }
+            }
+    
+            // Start the first step
+            updateProgress(0);
+        }
+    
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.classList.add('firework');
+            firework.style.left = `${Math.random() * 100}vw`;
+            firework.style.top = `${Math.random() * 100}vh`;
+            firework.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+            firework.style.setProperty('--y', `${(Math.random() - 0.5) * 200}px`);
+            
+            document.body.appendChild(firework);
+
+            setTimeout(() => {
+                firework.remove();
+            }, 1000); // Remove firework after animation
+        }
+
+    </script>    
+    
 </body>
 </html>
