@@ -21,3 +21,6 @@ def run_all(request):
             return JsonResponse({"success": False, "message": str(e)})
 
     return JsonResponse({"success": False, "message": "Invalid request method."})
+def show_results(request):
+    # Add any logic here to prepare data for the results page
+    return render(request, 'results.html')

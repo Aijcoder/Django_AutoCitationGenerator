@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCitation Results</title>
+    <style>
+        /* Base page styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle, rgba(84, 145, 84, 0.911) 0%, rgba(5, 38, 5, 0.8) 100%);
+            color: #f0f8ff;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .container {
+            flex: 1;
+            padding: 20px;
+            background-color: rgba(34, 34, 34, 0.9);
+            border: 2px solid #005b5b;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-area {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            background-color: transparent;
+            color: #f0f8ff;
+            overflow-y: auto;
+            min-height: 200px;
+            outline: none;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        /* Start Button Styling */
+        .button {
+            color: #f0f8ff;
+            background-color: #4caf50;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            background-color: #3e8e41;
+        }
+
+        /* Firework Styling */
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff5733, transparent);
+            animation: explode 1s ease-out forwards;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        /* Firework Animation */
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="results-area" contenteditable="true">
+            <!-- Results will appear here -->
+        </div>
+        <button class="button" onclick="createFirework()">Generate Citation</button>
+    </div>
+
+    <script>
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.classList.add('firework');
+            firework.style.left = Math.random() * 100 + 'vw';
+            firework.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(firework);
+
+            // Remove the firework element after the animation ends
+            setTimeout(() => firework.remove(), 1000);
+        }
+    </script>
+</body>
+</html>

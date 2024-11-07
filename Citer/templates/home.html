@@ -17,10 +17,11 @@
             box-sizing: border-box;
             overflow: hidden;
             position: relative;
+            flex-direction: row; /* Ensures text container and control panel are side by side */
         }
-    
+
         .text-container {
-            flex: 1;
+            flex-grow: 1; /* Allow it to grow to fill available space */
             padding: 20px;
             background-color: rgba(34, 34, 34, 0.9);
             border: 2px solid #005b5b;
@@ -29,6 +30,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            max-width: calc(100% - 320px); /* Subtract the control panel width to prevent overflow */
+            font-family: Arial, sans-serif; /* Apply font to the entire text container */
         }
 
         .editor-area {
@@ -36,65 +39,31 @@
             border: none;
             padding: 10px;
             background-color: transparent;
-            color: #f0f8ff;
+            color: #bbb; /* Placeholder text color */
             overflow-y: auto;
             min-height: 200px;
-            caret-color: #f0f8ff; /* Sets caret color */
-            outline: none; /* Removes default focus outline */
-            font-size: 1rem; /* Add font size for better readability */
-        }
-        /* File upload button styling */
-        /* File upload container to hold both the upload button and the cross button */
-        .file-upload-container {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        /* File upload button styling */
-        .file-upload {
-            color: #f0f8ff;
-            background-color: #333;
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            margin-right: 10px; /* Space between the upload button and the cross button */
+            caret-color: #f0f8ff;
+            outline: none;
+            font-size: 1rem;
+            position: relative;
+            max-width: 100%; /* Ensure it doesn't extend beyond the container */
+            box-sizing: border-box;
+            transition: color 0.2s, opacity 0.2s; /* Transition effect */
+            font-family: 'Arial', sans-serif; /* Apply minimalist font */
+            white-space: pre-wrap; /* Allow wrapping without rich text formatting */
+            word-wrap: break-word; /* Prevent long words from overflowing */
         }
 
-        /* Cross button styling */
-        .remove-file-btn {
-            background: none;
-            border: none;
-            color: #ff4c4c;
-            font-size: 20px;
-            cursor: pointer;
-            display: none; /* Hide by default */
+        .editor-area:empty {
+            color: #bbb; /* Placeholder color */
         }
 
-        /* Hide file upload when there's content */
-        .editor-area:not(:empty) ~ .file-upload-container .file-upload {
-            display: none;
+        .editor-area:not(:empty) {
+            color: #f0f8ff; /* Content text color */
+            font-style: normal; /* Remove italics once text is entered */
         }
 
-        /* Placeholder styling */
-        .placeholder {
-            color: #bbb; /* Placeholder text color */
-            position: absolute;
-            pointer-events: none;
-            left: 20px;
-            top: 20px;
-            transition: 0.2s;
-        }
 
-        /* Hide placeholder if there's content */
-        .editor-area:focus + .placeholder,
-        .editor-area:not(:empty) + .placeholder {
-            display: none;
-        }
-
-    
         .control-panel {
             width: 300px;
             padding: 20px;
@@ -102,37 +71,66 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             border-radius: 8px;
             margin-left: 20px;
+            overflow-y: auto;
         }
-    
-        /* Enchanted Progress Bar */
+
+        @media (max-width: 768px) {
+            /* Responsive adjustments for smaller screens */
+            body {
+                flex-direction: column; /* Stack the text container and control panel vertically */
+            }
+
+            .text-container {
+                max-width: 100%;
+                margin-bottom: 20px; /* Add space between text container and control panel */
+            }
+
+            .editor-area {
+                font-size: 0.9rem;
+            }
+
+            .control-panel {
+                width: 100%; /* Full width on small screens */
+                margin-left: 0;
+            }
+        }
+
+        .placeholder {
+            color: #bbb;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
         .progress-bar-container {
             background: #555;
             border-radius: 5px;
             height: 20px;
             margin-bottom: 10px;
             overflow: hidden;
+            display: none; /* Hide progress bar initially */
         }
-    
+
         .progress-bar {
             height: 100%;
             width: 0%;
             background: linear-gradient(45deg, #ff5733, #33ff57, #3357ff, #ff33a6);
             background-size: 400% 400%;
-            animation: colorShift 5s infinite ease-in-out; /* Animated color gradient */
+            animation: colorShift 5s infinite ease-in-out;
             transition: width 0.4s ease;
         }
-    
-        /* Fireworks Styling */
+
         .firework {
             position: absolute;
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background: radial-gradient(circle, #ff5733, transparent);
-            animation: explode 1s forwards, colorShiftFirework 1s infinite; /* Combine explode and color shift */
+            animation: explode 1s forwards, colorShiftFirework 1s infinite;
         }
 
-        /* Explosion animation for movement */
         @keyframes explode {
             0% {
                 transform: translate(0, 0);
@@ -144,7 +142,6 @@
             }
         }
 
-        /* Color shift for fireworks */
         @keyframes colorShiftFirework {
             0% { background: radial-gradient(circle, #ff5733, transparent); }
             25% { background: radial-gradient(circle, #33ff57, transparent); }
@@ -152,8 +149,60 @@
             75% { background: radial-gradient(circle, #ff33a6, transparent); }
             100% { background: radial-gradient(circle, #ff5733, transparent); }
         }
+
+        .button {
+            color: #f0f8ff;
+            background-color: #4caf50;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            background-color: #3e8e41;
+        }
+
+        .log-container {
+            border: 1px solid #005b5b;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #005b5b;
+            background: linear-gradient(45deg, #d4af37, #c0c0c0);
+            background-size: 400% 400%;
+            animation: enchant 5s infinite ease-in-out;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+
+        .log-entry.complete {
+            background: #4caf50;
+            animation: none;
+            color: #f0f8ff;
+        }
+
+        @keyframes enchant {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
     </style>
-    
 </head>
 <body>
     <div class="text-container">
@@ -173,8 +222,27 @@
             <div class="progress-bar" id="progressBar"></div>
         </div>
         <button class="button" onclick="startProcessing()">Start</button>
+        <div class="log-container">
+            <div class="log-entry" id="step1" style="display: none;">Reading and filtering text</div>
+            <div class="log-entry" id="step2" style="display: none;">Classifying type of text</div>
+            <div class="log-entry" id="step3" style="display: none;">Generating queries</div>
+            <div class="log-entry" id="step4" style="display: none;">Getting links</div>
+            <div class="log-entry" id="step5" style="display: none;">Getting citations</div>
+            <div class="log-entry" id="step6" style="display: none;">Final result</div>
+        </div>
     </div>
+
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const editorArea = document.querySelector('.editor-area');
+
+            // Prevent pasting of rich text
+            editorArea.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain'); // Get plain text
+                document.execCommand('insertText', false, text); // Insert as plain text
+            });
+        });
         function togglePlaceholder() {
             const editor = document.querySelector('.editor-area');
             const placeholder = document.querySelector('.placeholder');
@@ -224,43 +292,68 @@
         }
 
         function startProcessing() {
+            const progressBarContainer = document.querySelector('.progress-bar-container');
             const progressBar = document.getElementById('progressBar');
+            const button = document.querySelector('.button');
+            
+            // Hide Start button after it's clicked
+            button.style.display = 'none'; 
+
+            // Show progress bar after the button is clicked
+            progressBarContainer.style.display = 'block'; 
+
             const steps = [
-                { increment: 15, delay: 1000 },  // Step 1 - 15%
-                { increment: 15, delay: 1000 },  // Step 2 - 15%
-                { increment: 10, delay: 800 },   // Step 3 - 10%
-                { increment: 10, delay: 800 },   // Step 4 - 10%
-                { increment: 25, delay: 1200 },  // Step 5 - 25%
-                { increment: 25, delay: 1200 }   // Step 6 - 25%
+                { increment: 10, delay: 1000, log: 'Reading and filtering text', id: 'step1' },
+                { increment: 15, delay: 1000, log: 'Classifying type of text', id: 'step2' },
+                { increment: 15, delay: 800, log: 'Generating queries', id: 'step3' },
+                { increment: 15, delay: 800, log: 'Getting links', id: 'step4' },
+                { increment: 20, delay: 1200, log: 'Getting citations', id: 'step5' },
+                { increment: 25, delay: 1200, log: 'Final result', id: 'step6' }
             ];
-    
+
             let progress = 0;
-    
+
             function updateProgress(stepIndex) {
                 if (stepIndex < steps.length) {
-                    // Update progress and progress bar width
                     progress += steps[stepIndex].increment;
                     progressBar.style.width = progress + '%';
+
+                    // Fireworks for each step
                     for (let i = 0; i < 30; i++) {
                         createFirework();
                     }
-                    // Move to the next step after the specified delay
+
+                    // Update the log
+                    const logEntry = document.getElementById(steps[stepIndex].id);
+                    logEntry.style.display = 'block';
+                    logEntry.classList.add('complete');
+
+                    if (stepIndex === steps.length - 1) {
+                        // Display 'See Results' button on final step
+                        for (let i = 0; i < 50; i++) {
+                            createFirework();
+                        }
+                        const resultsButton = document.createElement('button');
+                        resultsButton.classList.add('button');
+                        resultsButton.textContent = 'See Results';
+                        resultsButton.onclick = () => {
+                            window.location.href = "{% url 'show_results' %}";
+                        };
+                        document.querySelector('.control-panel').appendChild(resultsButton);
+                    }
+
                     setTimeout(() => {
                         updateProgress(stepIndex + 1);
                     }, steps[stepIndex].delay);
                 } else {
-                    // All steps complete, trigger fireworks effect
-                    for (let i = 0; i < 50; i++) {
-                        createFirework();
-                    }
+                    
                     console.log("Processing Complete");
                 }
             }
-    
-            // Start the first step
+
             updateProgress(0);
         }
-        
+
         function createFirework() {
             const firework = document.createElement('div');
             firework.classList.add('firework');
@@ -275,8 +368,6 @@
                 firework.remove();
             }, 1000); // Remove firework after animation
         }
-
-    </script>    
-    
+    </script>
 </body>
 </html>
