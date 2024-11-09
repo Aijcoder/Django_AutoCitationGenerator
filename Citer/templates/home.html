@@ -7,7 +7,7 @@
     <style>
         /* Base page styling */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica Neue', Helvetica;
             background: radial-gradient(circle, rgba(84, 145, 84, 0.911) 0%, rgba(5, 38, 5, 0.8) 100%);
             color: #f0f8ff;
             display: flex;
@@ -31,7 +31,11 @@
             display: flex;
             flex-direction: column;
             max-width: calc(100% - 320px); /* Subtract the control panel width to prevent overflow */
-            font-family: Arial, sans-serif; /* Apply font to the entire text container */
+            font-family: 'Helvetica Neue', Helvetica; /* Apply font to the entire text container */
+        }
+        .text-container.locked {
+            pointer-events: none;
+            opacity: 0.5;
         }
 
         .editor-area {
@@ -120,6 +124,12 @@
             background-size: 400% 400%;
             animation: colorShift 5s infinite ease-in-out;
             transition: width 0.4s ease;
+        }
+
+        @keyframes colorShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .firework {
@@ -217,7 +227,7 @@
     </div>
     
     <div class="control-panel">
-        <h2>Control Panel</h2>
+        <h3>Generate Relevant Citations</h3>
         <div class="progress-bar-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -295,12 +305,16 @@
             const progressBarContainer = document.querySelector('.progress-bar-container');
             const progressBar = document.getElementById('progressBar');
             const button = document.querySelector('.button');
-            
+            const textContainer = document.querySelector('.text-container');
+
             // Hide Start button after it's clicked
-            button.style.display = 'none'; 
+            button.style.display = 'none';
 
             // Show progress bar after the button is clicked
-            progressBarContainer.style.display = 'block'; 
+            progressBarContainer.style.display = 'block';
+
+            // Add the 'locked' class to the text container
+            textContainer.classList.add('locked');
 
             const steps = [
                 { increment: 10, delay: 1000, log: 'Reading and filtering text', id: 'step1' },
