@@ -300,7 +300,6 @@
             togglePlaceholder(); // Show placeholder again
             removeFileBtn.style.display = 'none'; // Hide the cross button
         }
-
         function startProcessing() {
             const progressBarContainer = document.querySelector('.progress-bar-container');
             const progressBar = document.getElementById('progressBar');
@@ -317,56 +316,101 @@
             textContainer.classList.add('locked');
 
             const steps = [
-                { increment: 10, delay: 1000, log: 'Reading and filtering text', id: 'step1' },
-                { increment: 15, delay: 1000, log: 'Classifying type of text', id: 'step2' },
-                { increment: 15, delay: 800, log: 'Generating queries', id: 'step3' },
-                { increment: 15, delay: 800, log: 'Getting links', id: 'step4' },
-                { increment: 20, delay: 1200, log: 'Getting citations', id: 'step5' },
-                { increment: 25, delay: 1200, log: 'Final result', id: 'step6' }
+                { increment: 10, log: 'Reading and filtering text', id: 'step1' },
+                { increment: 15, log: 'Classifying type of text', id: 'step2' },
+                { increment: 15, log: 'Generating queries', id: 'step3' },
+                { increment: 15, log: 'Getting links', id: 'step4' },
+                { increment: 20, log: 'Getting citations', id: 'step5' },
+                { increment: 25, log: 'Final result', id: 'step6' }
             ];
 
             let progress = 0;
 
-            function updateProgress(stepIndex) {
+            async function checkStepCompletion(logMessage) {
+                const response = await fetch(`/check_log_step/?step=${encodeURIComponent(logMessage)}`);
+                const result = await response.json();
+                return result.step_found;
+            }
+
+            async function updateProgress(stepIndex) {
                 if (stepIndex < steps.length) {
-                    progress += steps[stepIndex].increment;
-                    progressBar.style.width = progress + '%';
-
-                    // Fireworks for each step
-                    for (let i = 0; i < 30; i++) {
-                        createFirework();
-                    }
-
-                    // Update the log
-                    const logEntry = document.getElementById(steps[stepIndex].id);
-                    logEntry.style.display = 'block';
-                    logEntry.classList.add('complete');
-
-                    if (stepIndex === steps.length - 1) {
-                        // Display 'See Results' button on final step
-                        for (let i = 0; i < 50; i++) {
-                            createFirework();
-                        }
-                        const resultsButton = document.createElement('button');
-                        resultsButton.classList.add('button');
-                        resultsButton.textContent = 'See Results';
-                        resultsButton.onclick = () => {
-                            window.location.href = "{% url 'show_results' %}";
-                        };
-                        document.querySelector('.control-panel').appendChild(resultsButton);
-                    }
-
-                    setTimeout(() => {
-                        updateProgress(stepIndex + 1);
-                    }, steps[stepIndex].delay);
-                } else {
+                    const currentStep = steps[stepIndex];
                     
+                    // Poll the server until the step log message appears
+                    const interval = setInterval(async () => {
+                        const stepComplete = await checkStepCompletion(currentStep.log);
+                        
+                        if (stepComplete) {
+                            clearInterval(interval);
+
+                            progress += currentStep.increment;
+                            progressBar.style.width = progress + '%';
+
+                            // Fireworks for each step
+                            for (let i = 0; i < 30; i++) {
+                                createFirework();
+                            }
+
+                            // Update the log
+                            const logEntry = document.getElementById(currentStep.id);
+                            logEntry.style.display = 'block';
+                            logEntry.classList.add('complete');
+
+                            if (stepIndex === steps.length - 1) {
+                                // Display 'See Results' button on final step
+                                for (let i = 0; i < 50; i++) {
+                                    createFirework();
+                                }
+                                const resultsButton = document.createElement('button');
+                                resultsButton.classList.add('button');
+                                resultsButton.textContent = 'See Results';
+                                resultsButton.onclick = () => {
+                                    window.location.href = "{% url 'show_results' %}";
+                                };
+                                document.querySelector('.control-panel').appendChild(resultsButton);
+                            }
+
+                            // Move to the next step after a delay
+                            setTimeout(() => {
+                                updateProgress(stepIndex + 1);
+                            }, 500); // Adjust delay as needed
+                        }
+                    }, 1000); // Check every second
+                } else {
                     console.log("Processing Complete");
                 }
             }
 
-            updateProgress(0);
+            const textToClassify = document.querySelector('.editor-area').innerText;
+
+            fetch('/run_all/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ 'text_to_classify': textToClassify })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateProgress(0);
+                } else {
+                    alert(data.message);
+                    button.style.display = 'block';
+                    progressBarContainer.style.display = 'none';
+                    textContainer.classList.remove('locked');
+                }
+            })
+            .catch(error => {
+                alert('An error occurred. Please try again later.');
+                button.style.display = 'block';
+                progressBarContainer.style.display = 'none';
+                textContainer.classList.remove('locked');
+                console.error('Error:', error);
+            });
         }
+
+        
 
         function createFirework() {
             const firework = document.createElement('div');
