@@ -80,7 +80,7 @@ for geturl in websites:
     except Exception as e:
         print(f"An error occurred for {geturl}: {e}")
 with open(LOG_FILE_PATH, 'a') as log_file:
-    log_file.write("Getting citations - SUCCESS")
+    log_file.write("Getting citations\n")
 # Save all citations to a JSON file
 with open(LOG_FILE_PATH, 'w') as json_file:
     json.dump(citations, json_file, indent=4)
@@ -89,4 +89,4 @@ print(f"Citations saved to {LOG_FILE_PATH}.")
 # Close the WebDriver at the end
 driver.quit()
 with open(LOG_FILE_PATH, 'a') as log_file:
-    log_file.write("Final result - SUCCESS")
+    log_file.write("Final result")

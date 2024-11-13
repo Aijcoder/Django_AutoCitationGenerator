@@ -216,6 +216,7 @@
 </head>
 <body>
     <div class="text-container">
+        {% csrf_token %}
         <div class="editor-area" contenteditable="true" spellcheck="false" oninput="togglePlaceholder()"></div>
         <div class="placeholder">Start by writing, pasting (⌘ + V) text, or uploading a document (doc, pdf).</div>
         
@@ -383,10 +384,12 @@
 
             const textToClassify = document.querySelector('.editor-area').innerText;
 
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             fetch('/run_all/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
                 },
                 body: new URLSearchParams({ 'text_to_classify': textToClassify })
             })
