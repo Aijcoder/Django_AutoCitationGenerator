@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stacked Error Popups</title>
+    <style>
+        /* Button styling */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #222;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #444;
+        }
+
+        /* Error popup styling */
+        .error-popup {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #FF4E50;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 300px;
+            text-align: center;
+            opacity: 1;
+            white-space: nowrap;
+            transition: opacity 0.4s ease-out, top 0.4s ease; /* Smooth fade and fall */
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="showError()">Show Error</button>
+
+    <script>
+        let errorCount = 0; // Track the number of errors displayed
+
+        function showError() {
+            // Create a new error popup element
+            const errorPopup = document.createElement("div");
+            errorPopup.className = "error-popup";
+            errorPopup.textContent = "Error: Action failed!";
+            
+            // Position the error above existing ones based on errorCount
+            errorPopup.style.top = `${20 + (errorCount * 60)}px`; // Adjust vertical spacing
+            
+            // Add to the document body
+            document.body.appendChild(errorPopup);
+            
+            // Increase the error count for stacking
+            errorCount++;
+
+            // Animate width to simulate progress
+            setTimeout(() => {
+                errorPopup.style.width = "100%";
+            }, 0);
+
+            // Fade out and remove the popup after a delay
+            setTimeout(() => {
+                errorPopup.style.opacity = "0";
+
+                setTimeout(() => {
+                    errorPopup.remove();
+                    errorCount--; // Decrease error count
+                    
+                    // Move remaining errors down
+                    document.querySelectorAll('.error-popup').forEach((popup, index) => {
+                        popup.style.top = `${20 + (index * 60)}px`;
+                    });
+
+                }, 400); // Matches CSS opacity transition duration
+            }, 3000); // Matches the width animation duration
+        }
+    </script>
+
+</body>
+</html>
