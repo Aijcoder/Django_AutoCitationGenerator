@@ -72,6 +72,6 @@ try:
     unique_websites = list(set(all_websites))[:WEBSITES_LIMIT]
     create_input_file(unique_websites, OUTPUT_FILE)
     with open('./_AutoCitation/log/process.log', 'a') as log_file:
-        log_file.write("Getting links\n")
+        log_file.write("\n4")
 except Exception as e:
     logging.error(f"Error in main execution: {e}")

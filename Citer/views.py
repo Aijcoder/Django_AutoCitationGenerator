@@ -12,11 +12,27 @@ def check_log_step(request):
     if not step:
         return JsonResponse({'error': 'No step specified'}, status=400)
     try:
-        with open(log_file_path, 'r') as log_file:
-            # Check if the log contains the step as a substring
-            log_content = log_file.read()
-            step_found = step in log_content
-            return JsonResponse({'step_found': step_found})
+        try:
+            with open(log_file_path, 'r') as log_file:
+                log_content = log_file.readlines()
+                
+                # Check the last line
+                if log_content:
+                    last_line = log_content[-1].strip()  # Get the last line and strip any whitespace
+                    
+                    # Try to convert the last line to an integer
+                    try:
+                        step = int(last_line)
+                        return JsonResponse({'step_found': step})
+                    except ValueError:
+                        # If it's not an integer, return the last line as a string
+                        return JsonResponse({'step_found': step in log_content})
+                else:
+                    # If file is empty
+                    return JsonResponse({'error': 'File is empty'})
+        except FileNotFoundError:
+            return JsonResponse({'error': 'File not found'})
+
     except FileNotFoundError:
         return JsonResponse({'error': 'Log file not found'}, status=404)
 
@@ -33,6 +49,7 @@ def run_all(request):
         auto_citation = AutoCitation(text_to_classify)
         try:
             auto_citation.run_all()
+            """
             # Update the log file with the steps
             log_file_path = './_AutoCitation/log/process.log'
             with open(log_file_path, 'a') as log_file:
@@ -42,6 +59,7 @@ def run_all(request):
                 log_file.write('Getting links\n')
                 log_file.write('Getting citations\n')
                 log_file.write('Final result\n')
+            """
             return JsonResponse({"success": True, "message": "Processing completed successfully."})
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)})

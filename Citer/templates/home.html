@@ -19,7 +19,36 @@
             position: relative;
             flex-direction: row; /* Ensures text container and control panel are side by side */
         }
+        .error-popup {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #FF4E50;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 250px;
+            text-align: center;
+            opacity: 1;
+            white-space: nowrap;
+            transition: opacity 0.4s ease-out, bottom 0.4s ease;
+        }
 
+        /* Shake effect for the screen */
+        .shake {
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
         .text-container {
             flex-grow: 1; /* Allow it to grow to fill available space */
             padding: 20px;
@@ -254,6 +283,53 @@
                 document.execCommand('insertText', false, text); // Insert as plain text
             });
         });
+        let errorCount = 0; // Track the number of errors displayed
+        const maxErrors = 5; // Limit the number of errors
+
+        function showError(message) {
+            if (errorCount >= maxErrors) {
+                shakeScreen(); // Shake the screen when the max errors are exceeded
+                return;
+            }
+
+            // Create a new error popup element
+            const errorPopup = document.createElement("div");
+            errorPopup.className = "error-popup";
+            errorPopup.textContent = message; // Use the provided message
+            
+            // Position the error at the bottom of the screen and stack upwards
+            errorPopup.style.bottom = `${20 + (errorCount * 60)}px`; // Adjust vertical spacing
+
+            // Add to the document body
+            document.body.appendChild(errorPopup);
+            
+            // Increase the error count for stacking
+            errorCount++;
+
+            // Fade out and remove the popup after a delay
+            setTimeout(() => {
+                errorPopup.style.opacity = "0";
+
+                setTimeout(() => {
+                    errorPopup.remove();
+                    errorCount--; // Decrease error count
+                    
+                    // Move remaining errors up
+                    document.querySelectorAll('.error-popup').forEach((popup, index) => {
+                        popup.style.bottom = `${20 + (index * 60)}px`;
+                    });
+
+                }, 400); // Matches CSS opacity transition duration
+            }, 3000); // Matches the duration until the error fades
+        }
+
+        // Function to shake the screen
+        function shakeScreen() {
+            document.body.classList.add("shake");
+            setTimeout(() => {
+                document.body.classList.remove("shake");
+            }, 500);
+        }
         function togglePlaceholder() {
             const editor = document.querySelector('.editor-area');
             const placeholder = document.querySelector('.placeholder');
@@ -317,12 +393,12 @@
             textContainer.classList.add('locked');
 
             const steps = [
-                { increment: 10, log: 'Reading and filtering text', id: 'step1' },
-                { increment: 15, log: 'Classifying type of text', id: 'step2' },
-                { increment: 15, log: 'Generating queries', id: 'step3' },
-                { increment: 15, log: 'Getting links', id: 'step4' },
-                { increment: 20, log: 'Getting citations', id: 'step5' },
-                { increment: 25, log: 'Final result', id: 'step6' }
+                { increment: 10, log: '1', id: 'step1' },
+                { increment: 15, log: '2', id: 'step2' },
+                { increment: 15, log: '3', id: 'step3' },
+                { increment: 15, log: '4', id: 'step4' },
+                { increment: 20, log: '5', id: 'step5' },
+                { increment: 25, log: '6', id: 'step6' }
             ];
 
             let progress = 0;
@@ -340,8 +416,11 @@
                     // Poll the server until the step log message appears
                     const interval = setInterval(async () => {
                         const stepComplete = await checkStepCompletion(currentStep.log);
-                        
-                        if (stepComplete) {
+                        if (isNaN(stepComplete)) {
+                            clearInterval(interval); // Stop the interval when stepComplete reaches 10
+                            return; // Exit the function
+                        }
+                        else if (stepComplete) {
                             clearInterval(interval);
 
                             progress += currentStep.increment;

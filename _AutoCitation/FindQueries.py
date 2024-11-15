@@ -38,7 +38,7 @@ with open("resources/stopwords", 'r') as f:
 # Filter input text
 filtered_text = ' '.join(word for word in text_to_classify.split() if word.lower() not in stopwords).strip()
 with open('./_AutoCitation/log/process.log', 'a') as log_file:
-    log_file.write("Reading and filtering text\n")
+    log_file.write("1")
 # Log filtered text
 with open(LOG_FILE_PATH, 'a') as log_file:
     log_file.write("Filtered text: " + filtered_text + "\n")
@@ -97,7 +97,7 @@ try:
 
     driver.refresh()
     with open('./_AutoCitation/log/process.log', 'a') as log_file:
-        log_file.write("Classifying type of text[" + classification_result + ']')
+        log_file.write("\n2")
     # Generate Google search queries based on classification result
     search_query_prompt = (
         f"The text is: {filtered_text} And based on the classification result '{classification_result}', "
@@ -125,7 +125,7 @@ try:
             log_file.write(f"Generated Google Search Query {i}: {query}\n")
             search_queries_file.write(query + "\n")
     with open('./_AutoCitation/log/process.log', 'a') as log_file:
-        log_file.write("Generating queries\n")
+        log_file.write("\n3")
 except (NoSuchElementException, TimeoutException) as e:
     with open(LOG_FILE_PATH, 'a') as log_file:
         log_file.write(f"Error occurred: {type(e).__name__}: {e}\n")
