@@ -40,8 +40,7 @@ filtered_text = ' '.join(word for word in text_to_classify.split() if word.lower
 with open('./_AutoCitation/log/process.log', 'a') as log_file:
     log_file.write("1")
 # Log filtered text
-with open(LOG_FILE_PATH, 'a') as log_file:
-    log_file.write("Filtered text: " + filtered_text + "\n")
+
 
 if len(filtered_text) >= LENGTH_LIMIT:
     filtered_text = filtered_text[:LENGTH_LIMIT]
@@ -87,8 +86,9 @@ try:
             ).text
 
             # Log the classification result
-            with open(LOG_FILE_PATH, 'a') as log_file:
-                log_file.write("Classification Result: " + classification_result + "\n")
+            with open(LOG_FILE_PATH, 'w') as log_file:
+                log_file.write(classification_result)
+
             break
         except (NoSuchElementException, TimeoutException):
             if time.time() - start_time > 30:  # 30 seconds timeout

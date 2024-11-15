@@ -36,6 +36,22 @@ def check_log_step(request):
     except FileNotFoundError:
         return JsonResponse({'error': 'Log file not found'}, status=404)
 
+@require_GET
+def check_log_type(request):
+    step = request.GET.get('step')
+    log_file_path = './_AutoCitation/log/output.log'
+    if not step:
+        return JsonResponse({'error': 'No step specified'}, status=400)
+    try:
+        try:
+            with open(log_file_path, 'r') as log_file:
+                return log_file.read().strip()
+        except FileNotFoundError:
+            return JsonResponse({'error': 'File not found'})
+
+    except FileNotFoundError:
+        return JsonResponse({'error': 'Log file not found'}, status=404)
+
 def home(request):
     """Renders the home template with the Run All button."""
     return render(request, 'home.html')

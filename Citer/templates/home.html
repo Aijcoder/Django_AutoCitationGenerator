@@ -409,6 +409,11 @@
                 return result.step_found;
             }
 
+            async function CheckTypeOfText(logMessage) {
+                const response = await fetch(`/check_log_text_type`);
+                const result = await response.json();
+                return result.type_text;
+            }
             async function updateProgress(stepIndex) {
                 if (stepIndex < steps.length) {
                     const currentStep = steps[stepIndex];
@@ -464,32 +469,32 @@
             const textToClassify = document.querySelector('.editor-area').innerText;
 
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            fetch('/run_all/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': csrftoken
-                },
-                body: new URLSearchParams({ 'text_to_classify': textToClassify })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateProgress(0);
-                } else {
-                    alert(data.message);
-                    button.style.display = 'block';
-                    progressBarContainer.style.display = 'none';
-                    textContainer.classList.remove('locked');
-                }
-            })
-            .catch(error => {
-                alert('An error occurred. Please try again later.');
-                button.style.display = 'block';
-                progressBarContainer.style.display = 'none';
-                textContainer.classList.remove('locked');
-                console.error('Error:', error);
-            });
+            // fetch('/run_all/', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/x-www-form-urlencoded',
+            //         'X-CSRFToken': csrftoken
+            //     },
+            //     body: new URLSearchParams({ 'text_to_classify': textToClassify })
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         updateProgress(0);
+            //     } else {
+            //         alert(data.message);
+            //         button.style.display = 'block';
+            //         progressBarContainer.style.display = 'none';
+            //         textContainer.classList.remove('locked');
+            //     }
+            // })
+            // .catch(error => {
+            //     alert('An error occurred. Please try again later.');
+            //     button.style.display = 'block';
+            //     progressBarContainer.style.display = 'none';
+            //     textContainer.classList.remove('locked');
+            //     console.error('Error:', error);
+            // });
         }
 
         
