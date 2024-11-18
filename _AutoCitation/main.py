@@ -63,11 +63,12 @@ class AutoCitation:
         """Automates the search query, citation generation, and real citation finding processes."""
         file = open('./_AutoCitation/log/process.log', 'w')
         file.write('')
-        if len(self.text_to_classify) > 100:
+        if len(self.text_to_classify) > 200:
             self.find_search_queries()
             self.find_real_cites(limit)
             self.cite_for_websites()
-        print("Save, less than 100 characters")
+        else:
+            file.write('Error, less than 200 characters of text provided')
 
 
 if __name__ == "__main__":
