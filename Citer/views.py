@@ -19,14 +19,15 @@ def check_log_step(request):
                 # Check the last line
                 if log_content:
                     last_line = log_content[-1].strip()  # Get the last line and strip any whitespace
-                    
-                    # Try to convert the last line to an integer
-                    try:
-                        step = int(last_line)
-                        return JsonResponse({'step_found': step})
-                    except ValueError:
-                        # If it's not an integer, return the last line as a string
-                        return JsonResponse({'step_found': step in log_content})
+                    if last_line != '':
+                        # Try to convert the last line to an integer
+                        try:
+                            step = int(last_line)
+                            return JsonResponse({'step_found': 1})
+                        except ValueError:
+                            # If it's not an integer, return the last line as a string
+                            return JsonResponse({'step_found': last_line.strip()})
+                    return JsonResponse({'step_found': ''})
                 else:
                     # If file is empty
                     return JsonResponse({'error': 'File is empty'})
