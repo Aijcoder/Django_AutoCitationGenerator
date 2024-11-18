@@ -383,13 +383,9 @@
             const button = document.querySelector('.button');
             const textContainer = document.querySelector('.text-container');
 
-            // Hide Start button after it's clicked
+            // Disable UI elements
             button.style.display = 'none';
-
-            // Show progress bar after the button is clicked
             progressBarContainer.style.display = 'block';
-
-            // Add the 'locked' class to the text container
             textContainer.classList.add('locked');
 
             const steps = [
@@ -402,99 +398,130 @@
             ];
 
             let progress = 0;
+            let processingAborted = false;
 
-            async function checkStepCompletion(logMessage) {
-                const response = await fetch(`/check_log_step/?step=${encodeURIComponent(logMessage)}`);
-                const result = await response.json();
-                return result.step_found;
+            // Improved step completion check with timeout and error handling
+            async function checkStepCompletion(logMessage, timeout = 10000) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+                    const response = await fetch(`/check_log_step/?step=${encodeURIComponent(logMessage)}`, {
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    return result.step_found;
+                } catch (error) {
+                    console.error('Step completion check failed:', error);
+                    return false;
+                }
             }
 
-            async function CheckTypeOfText(logMessage) {
-                const response = await fetch(`/check_log_text_type`);
-                const result = await response.json();
-                return result.type_text;
+            function resetUI() {
+                button.disabled = false;
+                button.style.display = 'block';
+                button.textContent = 'Start';
+                progressBarContainer.style.display = 'none';
+                textContainer.classList.remove('locked');
+                progress = 0;
+                progressBar.style.width = '0%';
+                steps.forEach(step => {
+                    const logEntry = document.getElementById(step.id);
+                    logEntry.style.display = 'none';
+                    logEntry.classList.remove('complete');
+                });
             }
+
             async function updateProgress(stepIndex) {
-                if (stepIndex < steps.length) {
-                    const currentStep = steps[stepIndex];
-                    
-                    // Poll the server until the step log message appears
-                    const interval = setInterval(async () => {
-                        const stepComplete = await checkStepCompletion(currentStep.log);
-                        if (isNaN(stepComplete)) {
-                            clearInterval(interval); // Stop the interval when stepComplete reaches 10
-                            return; // Exit the function
+                if (processingAborted || stepIndex >= steps.length) return;
+
+                const currentStep = steps[stepIndex];
+                
+                try {
+                    const stepComplete = await checkStepCompletion(currentStep.log);
+                    if (typeof value == 'number') {
+                        progress += currentStep.increment;
+                        progressBar.style.width = `${Math.min(progress, 100)}%`;
+
+                        // Fireworks for each step
+                        for (let i = 0; i < 30; i++) {
+                            createFirework();
                         }
-                        else if (stepComplete) {
-                            clearInterval(interval);
 
-                            progress += currentStep.increment;
-                            progressBar.style.width = progress + '%';
+                        // Update the log
+                        const logEntry = document.getElementById(currentStep.id);
+                        logEntry.style.display = 'block';
+                        logEntry.classList.add('complete');
 
-                            // Fireworks for each step
-                            for (let i = 0; i < 30; i++) {
-                                createFirework();
-                            }
-
-                            // Update the log
-                            const logEntry = document.getElementById(currentStep.id);
-                            logEntry.style.display = 'block';
-                            logEntry.classList.add('complete');
-
-                            if (stepIndex === steps.length - 1) {
-                                // Display 'See Results' button on final step
-                                for (let i = 0; i < 50; i++) {
-                                    createFirework();
-                                }
-                                const resultsButton = document.createElement('button');
-                                resultsButton.classList.add('button');
-                                resultsButton.textContent = 'See Results';
-                                resultsButton.onclick = () => {
-                                    window.location.href = "{% url 'show_results' %}";
-                                };
-                                document.querySelector('.control-panel').appendChild(resultsButton);
-                            }
-
-                            // Move to the next step after a delay
-                            setTimeout(() => {
-                                updateProgress(stepIndex + 1);
-                            }, 500); // Adjust delay as needed
+                        if (stepIndex === steps.length - 1) {
+                            // Final step: show results button
+                            const resultsButton = document.createElement('button');
+                            resultsButton.classList.add('button');
+                            resultsButton.textContent = 'See Results';
+                            resultsButton.onclick = () => {
+                                window.location.href = "{% url 'show_results' %}";
+                            };
+                            document.querySelector('.control-panel').appendChild(resultsButton);
                         }
-                    }, 1000); // Check every second
-                } else {
-                    console.log("Processing Complete");
+
+                        // Move to next step
+                        await updateProgress(stepIndex + 1);
+                    } else {
+                        // If step not complete, retry after a delay
+                        if(stepComplete == ''){
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            await updateProgress(stepIndex);
+                        }
+                        else{
+                            showError(stepComplete);
+                            resetUI();
+                            return ;
+                        }
+                        
+                    }
+                } catch (error) {
+                    console.error('Progress update failed:', error);
+                    resetUI();
+                    showError('Processing failed. Please try again.');
                 }
             }
 
             const textToClassify = document.querySelector('.editor-area').innerText;
-
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            // fetch('/run_all/', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/x-www-form-urlencoded',
-            //         'X-CSRFToken': csrftoken
-            //     },
-            //     body: new URLSearchParams({ 'text_to_classify': textToClassify })
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.success) {
-            //         updateProgress(0);
-            //     } else {
-            //         alert(data.message);
-            //         button.style.display = 'block';
-            //         progressBarContainer.style.display = 'none';
-            //         textContainer.classList.remove('locked');
-            //     }
-            // })
-            // .catch(error => {
-            //     alert('An error occurred. Please try again later.');
-            //     button.style.display = 'block';
-            //     progressBarContainer.style.display = 'none';
-            //     textContainer.classList.remove('locked');
-            //     console.error('Error:', error);
-            // });
+
+            fetch('/run_all/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: new URLSearchParams({ 'text_to_classify': textToClassify })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server processing failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    updateProgress(0);
+                } else {
+                    throw new Error(data.message || 'Unknown processing error');
+                }
+            })
+            .catch(error => {
+                console.error('Processing error:', error);
+                resetUI();
+                showError(error.message || 'An unexpected error occurred');
+            });
         }
 
         
