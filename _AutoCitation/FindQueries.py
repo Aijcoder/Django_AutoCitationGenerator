@@ -25,6 +25,10 @@ LENGTH_LIMIT = 969
 # Setup
 os.makedirs(LOG_DIR, exist_ok=True)
 
+# Process Log
+file = open('./log/process.log', 'w')
+file.write('')
+
 # Get text to classify
 text_to_classify = sys.argv[1] if len(sys.argv) > 1 else """
     In an age where climate change and environmental degradation are pressing concerns, the concept of sustainable living has gained significant traction. Sustainable living refers to a lifestyle that aims to reduce an individual's or society's use of the Earth's natural resources and personal resources. The goal is to create a balance between ecological health, economic viability, and social equity.
@@ -37,7 +41,7 @@ with open("resources/stopwords", 'r') as f:
 
 # Filter input text
 filtered_text = ' '.join(word for word in text_to_classify.split() if word.lower() not in stopwords).strip()
-with open('./_AutoCitation/log/process.log', 'a') as log_file:
+with open('./log/process.log', 'a') as log_file:
     log_file.write("1")
 # Log filtered text
 
