@@ -37,7 +37,7 @@ with open("resources/stopwords", 'r') as f:
 
 # Filter input text
 filtered_text = ' '.join(word for word in text_to_classify.split() if word.lower() not in stopwords).strip()
-with open('./_AutoCitation/log/process.log', 'a') as log_file:
+with open('./log/process.log', 'a') as log_file:
     log_file.write("1")
 # Log filtered text
 
@@ -47,7 +47,7 @@ if len(filtered_text) >= LENGTH_LIMIT:
 
 
 classification_prompt = (
-    f"Given the following text, please classify it into one of the types: argumentative essay, "
+    f"Given the following text, please classify it into one of the types(use span.font-semibold.text-foreground): argumentative essay, "
     f"narrative essay, expository essay, news article, blog post, or other. Text: {filtered_text}"
 )
 
@@ -56,7 +56,7 @@ chrome_options = Options()
 chrome_options.binary_location = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 chrome_options.add_argument("--start-maximized")
 chrome_options.add_argument("--disable-gpu")
-chrome_options.add_argument("--headless")  
+#chrome_options.add_argument("--headless")  
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("blink-settings=imagesEnabled=false")
 chrome_options.add_argument("--disable-notifications")
@@ -96,7 +96,7 @@ try:
             driver.get(URL)
 
     driver.refresh()
-    with open('./_AutoCitation/log/process.log', 'a') as log_file:
+    with open('./log/process.log', 'a') as log_file:
         log_file.write("\n2")
     # Generate Google search queries based on classification result
     search_query_prompt = (
@@ -124,7 +124,7 @@ try:
             query = query_element.text
             log_file.write(f"Generated Google Search Query {i}: {query}\n")
             search_queries_file.write(query + "\n")
-    with open('./_AutoCitation/log/process.log', 'a') as log_file:
+    with open('./log/process.log', 'a') as log_file:
         log_file.write("\n3")
 except (NoSuchElementException, TimeoutException) as e:
     with open(LOG_FILE_PATH, 'a') as log_file:
